@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import Link from "next/link";
 
-import { fetchNotes } from "@/lib/api";
+import { fetchNotes } from "@/lib/api/api";
 
 import css from "@/app/notes/App.module.css";
 
