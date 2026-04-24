@@ -32,7 +32,7 @@ export default function ProfilePage() {
           </h1>
 
           <Link
-            href="#"
+            href="/profile/edit"
             className={css.editProfileButton}
           >
             Edit Profile

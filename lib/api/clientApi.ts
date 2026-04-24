@@ -109,12 +109,13 @@ export const getMe =
   };
 
 export const updateMe = async (
-  data: unknown
+  data: { username: string }
 ) => {
-  const res = await api.patch(
-    "/users/me",
-    data
-  );
+  const response =
+    await api.patch(
+      "/users/me",
+      data
+    );
 
-  return res.data;
+  return response.data;
 };
