@@ -1,48 +1,86 @@
 import Link from "next/link";
 import css from "../AuthNavigation/AuthNavigation.module.css";
 
+import { useRouter } from "next/navigation";
+import { logout } from "@/lib/api/clientApi";
+import { useAuthStore } from "@/lib/store/authStore";
+
 export default function AuthNavigation() {
+  const router = useRouter();
+
+  const isAuthenticated =
+    useAuthStore(
+      (state) => state.isAuthenticated
+    );
+
+  const clearIsAuthenticated =
+    useAuthStore(
+      (state) =>
+        state.clearIsAuthenticated
+    );
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+
+      clearIsAuthenticated();
+
+      router.push("/sign-in");
+      router.refresh();
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
-      <li className={css.navigationItem}>
-        <Link
-          href="/profile"
-          prefetch={false}
-          className={css.navigationLink}
-        >
-          Profile
-        </Link>
-      </li>
+       {!isAuthenticated ? (
+        <>
+          <li className={css.navigationItem}>
+            <Link
+              href="/sign-in"
+              prefetch={false}
+              className={css.navigationLink}
+            >
+              Login
+            </Link>
+          </li>
 
-      <li className={css.navigationItem}>
-        <p className={css.userEmail}>
-          user@email.com
-        </p>
+          <li className={css.navigationItem}>
+            <Link
+              href="/sign-up"
+              prefetch={false}
+              className={css.navigationLink}
+            >
+              Sign up
+            </Link>
+          </li>
+        </>
+      ) : (
+        <>
+          <li className={css.navigationItem}>
+            <Link
+              href="/profile"
+              prefetch={false}
+              className={css.navigationLink}
+            >
+              Profile
+            </Link>
+          </li>
 
-        <button className={css.logoutButton}>
-          Logout
-        </button>
-      </li>
+          <li className={css.navigationItem}>
+            <p className={css.userEmail}>
+              user@email.com
+            </p>
 
-      <li className={css.navigationItem}>
-        <Link
-          href="/sign-in"
-          prefetch={false}
-          className={css.navigationLink}
-        >
-          Login
-        </Link>
-      </li>
-
-      <li className={css.navigationItem}>
-        <Link
-          href="/sign-up"
-          prefetch={false}
-          className={css.navigationLink}
-        >
-          Sign up
-        </Link>
-      </li>
+            <button className={css.logoutButton}
+                onClick={handleLogout}
+              >
+              Logout
+            </button>
+          </li>
+          </>
+      )}
     </>
   );
-}
+};
