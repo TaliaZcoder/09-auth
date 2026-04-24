@@ -6,6 +6,7 @@ import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
+import AuthProvider from "@/components/AuthProvider/AuthProvider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -32,28 +33,30 @@ export const metadata: Metadata = {
   },
 };
 
-type Props = {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-};
-
 export default function RootLayout({
   children,
-  modal,
-}: Props) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body
-        className={roboto.variable}
+        className={
+          roboto.variable
+        }
       >
         <TanStackProvider>
-          <Header />
+          <AuthProvider>
 
-        {children}
+            <Header />
 
-          {modal}
+            <main>
+              {children}
+            </main>
 
-          <Footer />
+            <Footer />
+
+          </AuthProvider>
         </TanStackProvider>
       </body>
     </html>
