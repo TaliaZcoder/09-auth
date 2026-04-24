@@ -1,9 +1,15 @@
 import { api } from "./api";
 import type { Note } from "@/types/note";
+import type { User } from "@/types/user";
 
 export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
+}
+
+interface RegisterRequest {
+  email: string;
+  password: string;
 }
 
 export const fetchNotes = async (
@@ -56,11 +62,8 @@ export const deleteNote = async (
 };
 
 export const register = async (
-  data: {
-    email: string;
-    password: string;
-  }
-) => {
+  data: RegisterRequest
+): Promise<User> => {
   const res = await api.post(
     "/auth/register",
     data
