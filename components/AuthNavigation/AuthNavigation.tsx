@@ -8,12 +8,9 @@ import { logout } from "@/lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export default function AuthNavigation() {
-  const router = useRouter();
+  const { user, isAuthenticated } = useAuthStore();
 
-  const isAuthenticated =
-    useAuthStore(
-      (state) => state.isAuthenticated
-    );
+  const router = useRouter();
 
   const clearIsAuthenticated =
     useAuthStore(
@@ -72,7 +69,7 @@ export default function AuthNavigation() {
 
           <li className={css.navigationItem}>
             <p className={css.userEmail}>
-              user@email.com
+               {user?.email}
             </p>
 
             <button className={css.logoutButton}
