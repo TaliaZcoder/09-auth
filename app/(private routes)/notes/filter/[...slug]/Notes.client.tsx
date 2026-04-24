@@ -8,9 +8,9 @@ import {
 } from "@tanstack/react-query";
 import Link from "next/link";
 
-import { fetchNotes } from "@/lib/api/api";
+import { fetchNotes } from "@/lib/api/clientApi";
 
-import css from "@/app/notes/App.module.css";
+import css from "@/app/(private routes)/notes/App.module.css";
 
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
