@@ -17,7 +17,7 @@ export default function SignUpPage() {
     useState("");
 
   const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    e: React.SyntheticEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
 
