@@ -33,29 +33,28 @@ export const metadata: Metadata = {
   },
 };
 
+type Props = Readonly<{
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}>;
+
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  modal,
+}: Props) {
   return (
     <html lang="en">
-      <body
-        className={
-          roboto.variable
-        }
-      >
+      <body className={roboto.variable}>
         <TanStackProvider>
           <AuthProvider>
-
             <Header />
 
             <main>
               {children}
+              {modal}
             </main>
 
             <Footer />
-
           </AuthProvider>
         </TanStackProvider>
       </body>
