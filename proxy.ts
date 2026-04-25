@@ -6,6 +6,20 @@ import { refreshSession } from "@/lib/api/serverApi";
 const privateRoutes = ["/profile", "/notes"];
 const authRoutes = ["/sign-in", "/sign-up"];
 
+function applyCookies(
+  response: NextResponse,
+  cookies: { name: string; value: string }[]
+) {
+  cookies.forEach(({ name, value }) => {
+    response.cookies.set(name, value, {
+      httpOnly: true,
+      path: "/",
+    });
+  });
+
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -22,22 +36,19 @@ export async function proxy(request: NextRequest) {
 
   let isAuthenticated = Boolean(accessToken);
 
-  const response = NextResponse.next();
-  
+  const newCookies: { name: string; value: string }[] = [];
+
   //refresh session
 
   if (!accessToken && refreshToken) {
     try {
       const newSession = await refreshSession(refreshToken);
-      if (newSession) {
-        //access token
-        if (newSession.accessToken) {
-            response.cookies.set("accessToken", newSession.accessToken, {
-              httpOnly: true,
-              path: "/",
-            });
-           }
-        
+      if (newSession?.accessToken) {
+        newCookies.push({
+          name: "accessToken",
+          value: newSession.accessToken,
+        });
+
         isAuthenticated = true;
       }
     } catch {
@@ -46,18 +57,21 @@ export async function proxy(request: NextRequest) {
   }
   //private routes protection
   if (isPrivateRoute && !isAuthenticated) {
-    return NextResponse.redirect(
+     const redirect = NextResponse.redirect(
       new URL("/sign-in", request.url)
     );
+     return applyCookies(redirect, newCookies);
   }
   // auth routes redirect
   if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(
+     const redirect = NextResponse.redirect(
       new URL("/", request.url)
     );
+    return applyCookies(redirect, newCookies);
   }
 
-  return response;
+   const response = NextResponse.next();
+  return applyCookies(response, newCookies);
 }
 
 export const config = {
