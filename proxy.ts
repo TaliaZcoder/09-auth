@@ -21,41 +21,43 @@ export async function proxy(request: NextRequest) {
   );
 
   let isAuthenticated = Boolean(accessToken);
+
+  const response = NextResponse.next();
   
+  //refresh session
+
   if (!accessToken && refreshToken) {
     try {
       const newSession = await refreshSession(refreshToken);
-
-      if (newSession?.accessToken) {
-        const response = NextResponse.next();
-
-        response.cookies.set("accessToken", newSession.accessToken, {
-          httpOnly: true,
-          path: "/",
-        });
-
+      if (newSession) {
+        //access token
+        if (newSession.accessToken) {
+            response.cookies.set("accessToken", newSession.accessToken, {
+              httpOnly: true,
+              path: "/",
+            });
+           }
+        
         isAuthenticated = true;
-
-        return response;
       }
     } catch {
       isAuthenticated = false;
     }
   }
-
+  //private routes protection
   if (isPrivateRoute && !isAuthenticated) {
     return NextResponse.redirect(
       new URL("/sign-in", request.url)
     );
   }
-
+  // auth routes redirect
   if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(
       new URL("/", request.url)
     );
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
