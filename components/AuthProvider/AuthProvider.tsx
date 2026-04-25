@@ -1,22 +1,13 @@
 'use client';
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   checkSession,
+  getMe,
 } from "@/lib/api/clientApi";
 
-import {
-  useAuthStore,
-} from "@/lib/store/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 
 type Props = {
   children: React.ReactNode;
@@ -25,75 +16,41 @@ type Props = {
 export default function AuthProvider({
   children,
 }: Props) {
-  const router = useRouter();
-  const pathname =
-    usePathname();
-
   const [loading, setLoading] =
     useState(true);
 
-  const setUser =
-    useAuthStore(
-      (state) => state.setUser
-    );
-
-  const clearAuth =
-    useAuthStore(
-      (state) =>
-        state.clearIsAuthenticated
-    );
+  const {
+    setUser,
+    clearIsAuthenticated,
+  } = useAuthStore();
 
   useEffect(() => {
-    const verify =
-      async () => {
-        try {
+    async function verifyAuth() {
+      try {
+        const session =
+          await checkSession();
+
+        if (session.data) {
           const user =
-            await checkSession();
+            await getMe();
 
-          if (user) {
-            setUser(user);
-          } else {
-            clearAuth();
-
-            if (
-              pathname.startsWith(
-                "/profile"
-              ) ||
-              pathname.startsWith(
-                "/notes"
-              )
-            ) {
-              router.push(
-                "/sign-in"
-              );
-            }
-          }
-        } catch {
-          clearAuth();
-        } finally {
-          setLoading(false);
+          setUser(user);
+        } else {
+          clearIsAuthenticated();
         }
-      };
+      } catch {
+        clearIsAuthenticated();
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    verify();
-  }, [
-    pathname,
-    router,
-    setUser,
-    clearAuth,
-  ]);
+    verifyAuth();
+  }, [setUser, clearIsAuthenticated]);
 
   if (loading) {
-    return (
-      <p
-        style={{
-          padding: "40px",
-        }}
-      >
-        Loading...
-      </p>
-    );
+    return <p>Loading...</p>;
   }
 
-  return children;
+  return <>{children}</>;
 }
