@@ -97,4 +97,17 @@ export const checkSession =
   );
 
   return res;
-}
+  }
+
+export const refreshSession = async (
+  refreshToken: string
+): Promise<{ accessToken: string } | null> => {
+  const res = await api.post<{ accessToken: string }>(
+    "/auth/refresh",
+    {
+      refreshToken,
+    }
+  );
+
+  return res.data;
+};
