@@ -1,39 +1,45 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const privateRoutes = ["/profile", "/notes"];
+const authRoutes = ["/sign-in", "/sign-up"];
+
 export function proxy(
   request: NextRequest
 ) {
-  const token =
-    request.cookies.get("token")
-      ?.value;
+  const { pathname } = request.nextUrl;
 
-  const { pathname } =
-    request.nextUrl;
+  const accessToken =
+    request.cookies.get("accessToken");
+
+  const refreshToken =
+    request.cookies.get("refreshToken");
 
   const isPrivateRoute =
-    pathname.startsWith("/profile") ||
-    pathname.startsWith("/notes");
+    privateRoutes.some((route) =>
+      pathname.startsWith(route)
+    );
 
   const isAuthRoute =
-    pathname.startsWith("/sign-in") ||
-    pathname.startsWith("/sign-up");
+    authRoutes.some((route) =>
+      pathname.startsWith(route)
+    );
 
+   const isAuthenticated =
+    accessToken || refreshToken;
+  
   if (
     isPrivateRoute &&
-    !token
+    !isAuthenticated
   ) {
     return NextResponse.redirect(
-      new URL(
-        "/sign-in",
-        request.url
-      )
+       new URL("/sign-in", request.url)
     );
   }
 
   if (
     isAuthRoute &&
-    token
+    isAuthenticated
   ) {
     return NextResponse.redirect(
       new URL(
