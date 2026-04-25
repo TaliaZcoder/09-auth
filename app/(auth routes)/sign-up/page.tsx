@@ -6,9 +6,12 @@ import { useRouter } from "next/navigation";
 import css from "./SignUpPage.module.css";
 
 import { register } from "@/lib/api/clientApi";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function SignUpPage() {
   const router = useRouter();
+
+  const { setUser } = useAuthStore();
 
   const [error, setError] =
     useState("");
@@ -27,10 +30,13 @@ export default function SignUpPage() {
     const password = form.get("password") as string;
 
     try {
+      const user =
       await register({
         email,
         password,
       });
+
+        setUser(user);
 
         router.push("/profile");
         
