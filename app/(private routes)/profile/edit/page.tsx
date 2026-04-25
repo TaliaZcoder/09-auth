@@ -11,8 +11,11 @@ import {
   updateMe,
 } from "@/lib/api/clientApi";
 
+import { useAuthStore } from "@/lib/store/authStore";
+
 export default function EditProfilePage() {
   const router = useRouter();
+  const { setUser } = useAuthStore();
 
   const [username, setUsername] =
     useState("");
@@ -36,15 +39,11 @@ export default function EditProfilePage() {
           const user =
             await getMe();
 
-          setUsername(
-            user.username
-          );
+          setUsername(user.username);
 
           setEmail(user.email);
 
-          setAvatar(
-            user.avatar
-          );
+          setAvatar(user.avatar);
         } catch {
           setError(
             "Failed to load profile"
@@ -58,19 +57,20 @@ export default function EditProfilePage() {
   }, []);
 
   const handleSubmit = async (
-    e: React.FormEvent
+    e: React.SyntheticEvent
   ) => {
     e.preventDefault();
 
     try {
-      await updateMe({
+      const updatedUser = await updateMe({
         username,
       });
 
-      router.push(
-        "/profile"
-      );
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
 
+      router.push("/profile");
       router.refresh();
 
     } catch {
@@ -81,9 +81,7 @@ export default function EditProfilePage() {
   };
 
   if (loading) {
-    return (
-      <p>Loading...</p>
-    );
+    return (<p>Loading...</p>);
   }
 
   return (
